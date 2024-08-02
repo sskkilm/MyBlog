@@ -1,10 +1,15 @@
 package com.sskkilm.myblog.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@Getter
+@Builder
 public class Post extends BaseEntity {
 
     @Id
@@ -22,5 +27,5 @@ public class Post extends BaseEntity {
     private String content;
 
     private LocalDateTime deletedAt;
-    
+
 }
