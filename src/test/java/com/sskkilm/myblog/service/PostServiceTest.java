@@ -1,6 +1,7 @@
 package com.sskkilm.myblog.service;
 
 import com.sskkilm.myblog.dto.PostCreateDto;
+import com.sskkilm.myblog.dto.PostUpdateDto;
 import com.sskkilm.myblog.entity.Post;
 import com.sskkilm.myblog.entity.User;
 import com.sskkilm.myblog.repository.PostRepository;
@@ -11,7 +12,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
+import java.util.Optional;
+
+import static com.sskkilm.myblog.dto.PostCreateDto.Response.POST_CREATE_SUCCESS;
+import static com.sskkilm.myblog.dto.PostUpdateDto.Response.*;
+import static com.sskkilm.myblog.service.PostService.MAXIMUM_EDITABLE_DATE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 
@@ -53,5 +61,113 @@ class PostServiceTest {
         assertEquals(1L, response.getUserId());
         assertEquals("title", response.getTitle());
         assertEquals("content", response.getContent());
+        assertEquals(POST_CREATE_SUCCESS, response.getMessage());
+    }
+
+    @Test
+    @DisplayName("게시글 수정 성공")
+    void updatePost_success() {
+        //given
+        PostUpdateDto.Request request = PostUpdateDto.Request.builder()
+                .title("updateTitle")
+                .content("updateContent")
+                .build();
+        LocalDateTime now = LocalDateTime.now();
+        User user = User.builder()
+                .id(1L)
+                .build();
+        Post post = Post.builder()
+                .id(1L)
+                .user(user)
+                .title("title")
+                .content("content")
+                .createdAt(now)
+                .build();
+        given(postRepository.findById(1L)).willReturn(Optional.of(post));
+
+        //when
+        PostUpdateDto.Response response = postService.updatePost(1L, request);
+
+        //then
+        assertEquals(1L, response.getPostId());
+        assertEquals("updateTitle", response.getTitle());
+        assertEquals("updateContent", response.getContent());
+        assertEquals(POST_UPDATE_SUCCESS, response.getMessage());
+    }
+
+    @Test
+    @DisplayName("게시글 수정 성공 - 경고 알림")
+    void updatePost_success_warning() {
+        //given
+        PostUpdateDto.Request request = PostUpdateDto.Request.builder()
+                .title("updateTitle")
+                .content("updateContent")
+                .build();
+        User user = User.builder()
+                .id(1L)
+                .build();
+        Post post = Post.builder()
+                .id(1L)
+                .user(user)
+                .title("title")
+                .content("content")
+                .createdAt(LocalDateTime.now().minusDays(WARNING_DATE))
+                .build();
+        given(postRepository.findById(1L)).willReturn(Optional.of(post));
+
+        //when
+        PostUpdateDto.Response response = postService.updatePost(1L, request);
+
+        //then
+        assertEquals(1L, response.getPostId());
+        assertEquals("updateTitle", response.getTitle());
+        assertEquals("updateContent", response.getContent());
+        assertEquals(POST_UPDATE_WARNING, response.getMessage());
+    }
+
+    @Test
+    @DisplayName("게시글 수정 실패 - 존재하지 않는 게시글")
+    void updatePost_fail_PostNotFound() {
+        //given
+        PostUpdateDto.Request request = PostUpdateDto.Request.builder()
+                .title("updateTitle")
+                .content("updateContent")
+                .build();
+        given(postRepository.findById(1L)).willReturn(Optional.empty());
+
+        //when
+        RuntimeException exception = assertThrows(RuntimeException.class,
+                () -> postService.updatePost(1L, request));
+
+        //then
+        assertEquals("Post not found -> " + 1L, exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("게시글 수정 실패 - 생성일 기준 10일 이후 수정불가")
+    void updatePost_fail_ExceedMaximumEditableDate() {
+        //given
+        PostUpdateDto.Request request = PostUpdateDto.Request.builder()
+                .title("updateTitle")
+                .content("updateContent")
+                .build();
+        User user = User.builder()
+                .id(1L)
+                .build();
+        Post post = Post.builder()
+                .id(1L)
+                .user(user)
+                .title("title")
+                .content("content")
+                .createdAt(LocalDateTime.now().minusDays(MAXIMUM_EDITABLE_DATE))
+                .build();
+        given(postRepository.findById(1L)).willReturn(Optional.of(post));
+
+        //when
+        RuntimeException exception = assertThrows(RuntimeException.class,
+                () -> postService.updatePost(1L, request));
+
+        //then
+        assertEquals("생성일 기준 10일 이후 수정불가", exception.getMessage());
     }
 }
