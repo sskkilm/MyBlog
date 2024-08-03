@@ -2,6 +2,7 @@ package com.sskkilm.myblog.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
@@ -9,7 +10,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Getter
-@Builder
+@SuperBuilder
 public class Post extends BaseEntity {
 
     @Id
@@ -28,4 +29,8 @@ public class Post extends BaseEntity {
 
     private LocalDateTime deletedAt;
 
+    public void update(String title, String content) {
+        this.title = title;
+        this.content = content;
+    }
 }

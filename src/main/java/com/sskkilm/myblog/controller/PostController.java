@@ -1,14 +1,12 @@
 package com.sskkilm.myblog.controller;
 
 import com.sskkilm.myblog.dto.PostCreateDto;
+import com.sskkilm.myblog.dto.PostUpdateDto;
 import com.sskkilm.myblog.entity.User;
 import com.sskkilm.myblog.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/posts")
@@ -24,4 +22,11 @@ public class PostController {
         return postService.createPost(User.builder().build(), request);
     }
 
+    @PutMapping("/{id}")
+    public PostUpdateDto.Response updatePost(
+            @PathVariable Long id,
+            @RequestBody @Valid PostUpdateDto.Request request
+    ) {
+        return postService.updatePost(id, request);
+    }
 }
