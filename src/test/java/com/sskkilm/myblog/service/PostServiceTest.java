@@ -15,9 +15,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import static com.sskkilm.myblog.dto.PostCreateDto.Response.POST_CREATE_SUCCESS;
-import static com.sskkilm.myblog.dto.PostUpdateDto.Response.*;
-import static com.sskkilm.myblog.service.PostService.MAXIMUM_EDITABLE_DATE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -61,7 +58,7 @@ class PostServiceTest {
         assertEquals(1L, response.getUserId());
         assertEquals("title", response.getTitle());
         assertEquals("content", response.getContent());
-        assertEquals(POST_CREATE_SUCCESS, response.getMessage());
+        assertEquals("Create Post Success", response.getMessage());
     }
 
     @Test
@@ -72,7 +69,6 @@ class PostServiceTest {
                 .title("updateTitle")
                 .content("updateContent")
                 .build();
-        LocalDateTime now = LocalDateTime.now();
         User user = User.builder()
                 .id(1L)
                 .build();
@@ -81,7 +77,7 @@ class PostServiceTest {
                 .user(user)
                 .title("title")
                 .content("content")
-                .createdAt(now)
+                .createdAt(LocalDateTime.now())
                 .build();
         given(postRepository.findById(1L)).willReturn(Optional.of(post));
 
@@ -92,7 +88,7 @@ class PostServiceTest {
         assertEquals(1L, response.getPostId());
         assertEquals("updateTitle", response.getTitle());
         assertEquals("updateContent", response.getContent());
-        assertEquals(POST_UPDATE_SUCCESS, response.getMessage());
+        assertEquals("Update Post Success", response.getMessage());
     }
 
     @Test
@@ -111,7 +107,7 @@ class PostServiceTest {
                 .user(user)
                 .title("title")
                 .content("content")
-                .createdAt(LocalDateTime.now().minusDays(WARNING_DATE))
+                .createdAt(LocalDateTime.now().minusDays(9))
                 .build();
         given(postRepository.findById(1L)).willReturn(Optional.of(post));
 
@@ -122,7 +118,7 @@ class PostServiceTest {
         assertEquals(1L, response.getPostId());
         assertEquals("updateTitle", response.getTitle());
         assertEquals("updateContent", response.getContent());
-        assertEquals(POST_UPDATE_WARNING, response.getMessage());
+        assertEquals("하루 후 수정 불가", response.getMessage());
     }
 
     @Test
@@ -140,7 +136,7 @@ class PostServiceTest {
                 () -> postService.updatePost(1L, request));
 
         //then
-        assertEquals("Post not found -> " + 1L, exception.getMessage());
+        assertEquals("존재하지 않는 게시글", exception.getMessage());
     }
 
     @Test
@@ -159,7 +155,7 @@ class PostServiceTest {
                 .user(user)
                 .title("title")
                 .content("content")
-                .createdAt(LocalDateTime.now().minusDays(MAXIMUM_EDITABLE_DATE))
+                .createdAt(LocalDateTime.now().minusDays(10))
                 .build();
         given(postRepository.findById(1L)).willReturn(Optional.of(post));
 
@@ -168,6 +164,6 @@ class PostServiceTest {
                 () -> postService.updatePost(1L, request));
 
         //then
-        assertEquals("생성일 기준 10일 이후 수정불가", exception.getMessage());
+        assertEquals("생성일 기준 10일 이후 수정 불가", exception.getMessage());
     }
 }
