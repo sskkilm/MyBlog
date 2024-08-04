@@ -34,7 +34,7 @@ public class PostCreateDto {
     @Getter
     @Builder
     public static class Response {
-        public static final String POST_CREATE_SUCCESS = "Create Post Success";
+        private static final String POST_CREATE_SUCCESS = "Create Post Success";
 
         private Long postId;
         private Long userId;

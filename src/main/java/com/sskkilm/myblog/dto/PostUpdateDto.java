@@ -5,8 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Builder;
 import lombok.Getter;
-
-import java.time.LocalDateTime;
+import lombok.Setter;
 
 public class PostUpdateDto {
 
@@ -27,29 +26,23 @@ public class PostUpdateDto {
     @Getter
     @Builder
     public static class Response {
-        public static final String POST_UPDATE_SUCCESS = "Update Post Success";
-        public static final String POST_UPDATE_WARNING = "하루 후 수정 불가";
-        public static final int WARNING_DATE = 9;
+        private static final String POST_UPDATE_SUCCESS = "Update Post Success";
 
         private Long postId;
         private Long userId;
         private String title;
         private String content;
+        @Setter
         private String message;
 
         public static Response fromEntity(Post post) {
-            ResponseBuilder builder = Response.builder()
+            return Response.builder()
                     .postId(post.getId())
                     .userId(post.getUser().getId())
                     .title(post.getTitle())
-                    .content(post.getContent());
-            if (post.getCreatedAt().plusDays(WARNING_DATE)
-                    .isBefore(LocalDateTime.now())) {
-                builder.message(POST_UPDATE_WARNING);
-            } else {
-                builder.message(POST_UPDATE_SUCCESS);
-            }
-            return builder.build();
+                    .content(post.getContent())
+                    .message(POST_UPDATE_SUCCESS)
+                    .build();
         }
     }
 }

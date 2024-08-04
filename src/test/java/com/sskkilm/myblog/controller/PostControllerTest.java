@@ -14,8 +14,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-import static com.sskkilm.myblog.dto.PostCreateDto.Response.POST_CREATE_SUCCESS;
-import static com.sskkilm.myblog.dto.PostUpdateDto.Response.POST_UPDATE_SUCCESS;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
@@ -52,7 +50,7 @@ class PostControllerTest {
                                 .userId(1L)
                                 .title("title")
                                 .content("content")
-                                .message(POST_CREATE_SUCCESS)
+                                .message("Create Post Success")
                                 .build()
                 );
 
@@ -68,7 +66,7 @@ class PostControllerTest {
                 .andExpect(jsonPath("$.userId").value(1L))
                 .andExpect(jsonPath("$.title").value("title"))
                 .andExpect(jsonPath("$.content").value("content"))
-                .andExpect(jsonPath("$.message").value(POST_CREATE_SUCCESS))
+                .andExpect(jsonPath("$.message").value("Create Post Success"))
                 .andDo(print());
     }
 
@@ -178,7 +176,7 @@ class PostControllerTest {
                         .userId(1L)
                         .title("title")
                         .content("content")
-                        .message(POST_UPDATE_SUCCESS)
+                        .message("Update Post Success")
                         .build());
 
         //when
@@ -192,7 +190,7 @@ class PostControllerTest {
                 .andExpect(jsonPath("$.userId").value(1L))
                 .andExpect(jsonPath("$.title").value("title"))
                 .andExpect(jsonPath("$.content").value("content"))
-                .andExpect(jsonPath("$.message").value(POST_UPDATE_SUCCESS))
+                .andExpect(jsonPath("$.message").value("Update Post Success"))
                 .andDo(print());
     }
 
